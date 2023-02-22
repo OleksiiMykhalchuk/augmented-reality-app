@@ -52,4 +52,29 @@ class Coordinator: NSObject {
         }
     }
 
+    func setup() {
+
+        guard let view = view else {
+            return
+        }
+
+        let anchor = AnchorEntity(plane: .horizontal)
+        let box = ModelEntity(mesh: MeshResource.generateBox(size: 0.2), materials: [OcclusionMaterial()])
+        box.generateCollisionShapes(recursive: true)
+        view.installGestures(.all,for: box)
+
+        cancellable = ModelEntity.loadAsync(named: "robot")
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Unable to load the model \(error)")
+                }
+                self?.cancellable?.cancel()
+            } receiveValue: { entity in
+                anchor.addChild(entity)
+            }
+
+        anchor.addChild(box)
+        view.scene.addAnchor(anchor)
+    }
+
 }
