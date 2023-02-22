@@ -29,15 +29,23 @@ class Coordinator: NSObject {
             let anchor = AnchorEntity(raycastResult: result)
 
             cancellable = ModelEntity.loadAsync(named: "shoe")
+                .append(ModelEntity.loadAsync(named: "teapot"))
+                .collect()
                 .sink { loadCompletion in
                     if case let .failure(error) = loadCompletion {
                         print("Unable to load model")
                     }
 
                     self.cancellable?.cancel()
-                } receiveValue: { entity in
+                } receiveValue: { entities in
 
-                    anchor.addChild(entity)
+                    var x: Float = 0.0
+
+                    entities.forEach {
+                        $0.position = simd_make_float3(x,0,0)
+                        anchor.addChild($0)
+                        x += 0.3
+                    }
 
                 }
 
