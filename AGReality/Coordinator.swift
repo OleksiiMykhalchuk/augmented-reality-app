@@ -19,6 +19,10 @@ class Coordinator: NSObject {
 
         guard let view = self.view else { return }
 
+        guard view.scene.anchors.first(where: { $0.name == "LunarRoverAnchor" }) == nil else {
+            return
+        }
+
         let tapLocation = recognizer.location(in: view)
 
         let results = view.raycast(from: tapLocation, allowing: .estimatedPlane, alignment: .horizontal)
@@ -28,24 +32,16 @@ class Coordinator: NSObject {
             // create an ancor entity
             let anchor = AnchorEntity(raycastResult: result)
 
-            cancellable = ModelEntity.loadAsync(named: "shoe")
-                .append(ModelEntity.loadAsync(named: "teapot"))
-                .collect()
+            cancellable = ModelEntity.loadAsync(named: "LunarRover")
                 .sink { loadCompletion in
                     if case let .failure(error) = loadCompletion {
                         print("Unable to load model")
                     }
 
                     self.cancellable?.cancel()
-                } receiveValue: { entities in
-
-                    var x: Float = 0.0
-
-                    entities.forEach {
-                        $0.position = simd_make_float3(x,0,0)
-                        anchor.addChild($0)
-                        x += 0.3
-                    }
+                } receiveValue: { entity in
+                    anchor.name = "LunarRoverAnchor"
+                    anchor.addChild(entity)
 
                 }
 
