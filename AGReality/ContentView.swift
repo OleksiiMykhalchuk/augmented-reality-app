@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RealityKit
+import AVFoundation
 
 struct ContentView : View {
     var body: some View {
@@ -20,8 +21,28 @@ struct ARViewContainer: UIViewRepresentable {
         
         let arView = ARView(frame: .zero)
 
-        context.coordinator.view = arView
-        context.coordinator.setup()
+        let anchor = AnchorEntity(plane: .horizontal)
+
+        guard let url = Bundle.main.url(forResource: "production ID_3818213", withExtension: "mp4") else {
+            print("Video is not found")
+            return arView
+        }
+
+        let player = AVPlayer(url: url)
+
+        let material = VideoMaterial(avPlayer: player)
+
+        material.controller.audioInputMode = .spatial
+
+        let modelEntity = ModelEntity(mesh: MeshResource.generatePlane(width: 0.5, depth: 0.5), materials: [material])
+
+        player.play()
+
+        anchor.addChild(modelEntity)
+
+        arView.scene.addAnchor(anchor)
+
+
                 
         return arView
         
