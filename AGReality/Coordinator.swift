@@ -8,10 +8,12 @@
 import Foundation
 import ARKit
 import RealityKit
+import Combine
 
 class Coordinator: NSObject {
 
     weak var view: ARView?
+    var cancellable: AnyCancellable?
 
     @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
 
@@ -26,9 +28,19 @@ class Coordinator: NSObject {
             // create an ancor entity
             let anchor = AnchorEntity(raycastResult: result)
 
-            guard let entity = try? ModelEntity.load(named: "shoe") else { return }
+            cancellable = ModelEntity.loadAsync(named: "shoe")
+                .sink { loadCompletion in
+                    if case let .failure(error) = loadCompletion {
+                        print("Unable to load model")
+                    }
 
-            anchor.addChild(entity)
+                    self.cancellable?.cancel()
+                } receiveValue: { entity in
+
+                    anchor.addChild(entity)
+
+                }
+
 
             // add anchor to the scene
             view.scene.addAnchor(anchor)
