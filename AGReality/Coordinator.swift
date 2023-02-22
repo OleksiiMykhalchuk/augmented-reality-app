@@ -59,17 +59,33 @@ class Coordinator: NSObject {
         }
 
         let anchor = AnchorEntity(plane: .horizontal)
-        let mesh = MeshResource.generateBox(size: 0.3)
+        let mesh = MeshResource.generateBox(width: 0.3, height: 0.3, depth: 0.3, cornerRadius: 0, splitFaces: true)
         let box = ModelEntity(mesh: mesh)
+        cancellable = TextureResource.loadAsync(named: "lola")
+            .append(TextureResource.loadAsync(named: "purple_flower"))
+            .append(TextureResource.loadAsync(named: "cover.jpg"))
+            .append(TextureResource.loadAsync(named: "DSC_0003.JPG"))
+            .append(TextureResource.loadAsync(named: "DSC_0117.JPG"))
+            .append(TextureResource.loadAsync(named: "DSC_0171.JPG"))
+            .collect()
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("error: \(error)")
+                }
+                self?.cancellable?.cancel()
+            } receiveValue: { textures in
+                var materials: [UnlitMaterial] = []
 
-        let texture = try? TextureResource.load(named: "purple_flower")
-        if let texture = texture {
-            var material = UnlitMaterial()
-            material.color = .init(tint: .white, texture: .init(texture))
-            box.model?.materials = [material]
-        }
-        anchor.addChild(box)
-        view.scene.addAnchor(anchor)
+                textures.forEach { texture in
+                    var material = UnlitMaterial()
+                    material.color = .init(tint: .white, texture: .init(texture))
+                    materials.append(material)
+                }
+                box.model?.materials = materials
+                anchor.addChild(box)
+                view.scene.addAnchor(anchor)
+            }
+
     }
 
 }
