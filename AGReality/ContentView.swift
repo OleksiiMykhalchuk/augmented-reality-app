@@ -23,17 +23,7 @@ struct ARViewContainer: UIViewRepresentable {
         context.coordinator.view = arView
 
         arView.addGestureRecognizer(UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap)))
-        
-        let anchor = AnchorEntity(plane: .horizontal)
-
-//        let box = ModelEntity(mesh: MeshResource.generateBox(size: 0.3), materials: [SimpleMaterial(color: .yellow, isMetallic: true)])
-//        
-//        box.generateCollisionShapes(recursive: true)
-//
-//        anchor.addChild(box)
-
-        arView.scene.anchors.append(anchor)
-        
+                
         return arView
         
     }

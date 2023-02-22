@@ -23,20 +23,15 @@ class Coordinator: NSObject {
 
         if let result = results.first {
 
-            let anchorEntity = AnchorEntity(raycastResult: result)
+            // create an ancor entity
+            let anchor = AnchorEntity(raycastResult: result)
 
-            let modelEntity = ModelEntity(mesh: MeshResource.generateBox(size: 0.1))
-            modelEntity.generateCollisionShapes(recursive: true)
+            guard let entity = try? ModelEntity.load(named: "shoe") else { return }
 
-            modelEntity.model?.materials = [SimpleMaterial(color: .blue, isMetallic: true)]
+            anchor.addChild(entity)
 
-
-            anchorEntity.addChild(modelEntity)
-
-            view.scene.addAnchor(anchorEntity)
-
-            view.installGestures(.all ,for: modelEntity)
-
+            // add anchor to the scene
+            view.scene.addAnchor(anchor)
 
         }
     }
