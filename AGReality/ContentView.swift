@@ -23,27 +23,12 @@ struct ARViewContainer: UIViewRepresentable {
 
         let anchor = AnchorEntity(plane: .horizontal)
 
-        guard let url = Bundle.main.url(forResource: "production ID_3818213", withExtension: "mp4") else {
-            print("Video is not found")
-            return arView
-        }
-
-        let player = AVPlayer(url: url)
-
-        let material = VideoMaterial(avPlayer: player)
-
-        material.controller.audioInputMode = .spatial
-
-        let modelEntity = ModelEntity(mesh: MeshResource.generatePlane(width: 0.5, depth: 0.5), materials: [material])
-
-        player.play()
+        let modelEntity = ModelEntity(mesh: MeshResource.generateBox(size: 0.2), materials: [UnlitMaterial(color: .blue)])
 
         anchor.addChild(modelEntity)
 
         arView.scene.addAnchor(anchor)
 
-
-                
         return arView
         
     }
