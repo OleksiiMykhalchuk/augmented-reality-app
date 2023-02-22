@@ -59,20 +59,15 @@ class Coordinator: NSObject {
         }
 
         let anchor = AnchorEntity(plane: .horizontal)
-        let box = ModelEntity(mesh: MeshResource.generateBox(size: 0.2), materials: [OcclusionMaterial()])
-        box.generateCollisionShapes(recursive: true)
-        view.installGestures(.all,for: box)
+        let mesh = MeshResource.generateBox(size: 0.3)
+        let box = ModelEntity(mesh: mesh)
 
-        cancellable = ModelEntity.loadAsync(named: "robot")
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Unable to load the model \(error)")
-                }
-                self?.cancellable?.cancel()
-            } receiveValue: { entity in
-                anchor.addChild(entity)
-            }
-
+        let texture = try? TextureResource.load(named: "purple_flower")
+        if let texture = texture {
+            var material = UnlitMaterial()
+            material.color = .init(tint: .white, texture: .init(texture))
+            box.model?.materials = [material]
+        }
         anchor.addChild(box)
         view.scene.addAnchor(anchor)
     }
